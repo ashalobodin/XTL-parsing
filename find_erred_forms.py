@@ -6,10 +6,7 @@ import sys
 # Based on code, written by Laszlo Szathmary, alias Jabba Laci, 2017, jabba.laci@gmail.com
 
 java_patterns = {
-#    'src_eq_null': re.compile(r'if\s*\(\s*\w+\(?\)?\s*[!|=]=\s*null\s*[a-zA-Z\(\)|\s.]*\)\s*\{?'),
     'src_eq_null': re.compile(r'if\s*\(\s*.+\(?\)?\s*[!|=]=\s*null'),
-#    'src_eq_null': re.compile(r'if\s*\(\s*\w+\(?\)?\s*==\s*null\s*[a-zA-Z\(\)|\s.]*\)\s*\{?\s*return;'),
-#    'src_ne_null': re.compile(r'if\s*\(\s*\w+\(?\)?\s*!=\s*null\s*[a-zA-Z\(\)|\s.]*\)\s*\{?'),
     'get_source': re.compile(r'[getS|_s]ource\(\)')
 }
 
@@ -32,8 +29,7 @@ def traverse(path, obj, data=[]):
                 if k == 'text' and d.get('name') == 'java':
                     get_source = java_patterns['get_source'].findall(v)
                     src_eq_null = java_patterns['src_eq_null'].findall(v)
-                    #src_ne_null = java_patterns['src_ne_null'].findall(v)
-                    if get_source and not (src_eq_null):# or src_ne_null):
+                    if get_source and not src_eq_null:
                         data.append(v[:200])
 
     if isinstance(obj, list):
@@ -49,17 +45,13 @@ def traverse(path, obj, data=[]):
     return data
 
 
-def write_file(lines, mode='a', filename='raw_data.txt'):
+def write_file(lines, mode='a', filename='raw_data2.txt'):
     with open(filename, mode) as f:
         f.writelines(lines)
 
 
 if __name__ == "__main__":
     count = int(sys.argv[1]) if len(sys.argv) > 1 else len(files)
-    # write_file(' Parsing {} of {} forms. '.format(count, len(files)).center(100, '=') + '\n'
-    #            '====\tEach line consists of javaPackageName.javaName: number_of_findings:\n'
-    #            '====\tand a list of java code which doesn\'t pass validation (200 symbols).\n' +
-    #            '='*100 + '\n', mode='w')
     write_file('', 'w')
     for item in files[:count]:
         try:
@@ -76,11 +68,10 @@ if __name__ == "__main__":
                 continue
 
         except KeyError as e:
-            # write_file('==== KeyError \'{}\' for {} ====\n'.format(e.message, item))
             continue
 
         data = traverse('root', json_obj, [])
         if data:
-            write_file('{}:{}:{}:{}\n'.format(map_attibutes['javaPackageName'], map_attibutes['javaName'], len(data), data))
+            write_file('{}/{}.jar:{}:{}\n'.format(
+                map_attibutes['javaPackageName'], map_attibutes['javaName'], len(data), data))
         del json_obj
-    # write_file('====================================================================================================\n')
