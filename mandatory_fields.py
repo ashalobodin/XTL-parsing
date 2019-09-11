@@ -19,7 +19,7 @@ def traverse(path, obj, entity_path, data=[]):
         if 'atts' in obj.keys():
             if obj['atts'].get('mandatory'):
                 data.append({
-                    'name': entity_path + '.' + obj['atts']['javaName'],
+                    'name': entity_path + '.' + obj['atts'].get('javaName', 'EMPTY_javaName'),
                     'mandatory': obj['atts'].get('mandatory'),
                     'source': obj['atts'].get('source', '')
                 })
