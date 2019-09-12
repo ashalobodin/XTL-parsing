@@ -1,6 +1,5 @@
 import json
 import os
-import re
 import sys
 
 # Based on code, written by Laszlo Szathmary, alias Jabba Laci, 2017, jabba.laci@gmail.com
@@ -72,9 +71,9 @@ if __name__ == "__main__":
             continue
 
         data = traverse('root', json_obj, '', [])
-        write_file(['{}/{}.jar,{},{},{}\n'.format(map_attibutes['javaPackageName'],
-                                                  map_attibutes['javaName'],
-                                                  obj['name'],
-                                                  obj['mandatory'],
-                                                  obj['source']) for obj in data])
+        write_file([u'{}/{}.jar,{},{},{}\n'.format(map_attibutes['javaPackageName'],
+                                                   map_attibutes['javaName'],
+                                                   obj['name'],
+                                                   obj['mandatory'],
+                                                   obj['source']) for obj in data])
         del json_obj, data,
