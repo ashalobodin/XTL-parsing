@@ -7,7 +7,7 @@ import sys
 BASE_RESULT_DIR = 'results'
 
 
-files = sorted([os.path.join(dp, f) for dp, dn, filenames in os.walk('../maps2')
+files = sorted([os.path.join(dp, f) for dp, dn, filenames in os.walk('../maps3')
                 for f in filenames if os.path.splitext(f)[1] == '.json'])
 
 
@@ -38,9 +38,7 @@ def traverse(path, obj, entity_path, data=[]):
         li = obj
         for e in li:
             cnt += 1
-            if isinstance(e, dict):
-                traverse("{path}[{cnt}]".format(path=path, cnt=cnt), e, entity_path, data)
-            elif isinstance(e, list):
+            if isinstance(e, (dict, list)):
                 traverse("{path}[{cnt}]".format(path=path, cnt=cnt), e, entity_path, data)
             else:
                 print("{path}[{cnt}] => {e}".format(path=path, cnt=cnt, e=e))
@@ -51,13 +49,18 @@ def traverse(path, obj, entity_path, data=[]):
 def write_file(lines, mode='a', filename='fulfil_6244.txt'):
     path = os.path.join(BASE_RESULT_DIR, filename)
     with open(path, mode) as f:
-        f.writelines(lines)
+        try:
+            f.writelines(lines)
+        except Exception:
+            print lines
+            raise
 
 
 if __name__ == "__main__":
     count = int(sys.argv[1]) if len(sys.argv) > 1 else len(files)
     write_file('', 'w')
-    for item in files[:count]:
+    print('There are {} files'.format(count))
+    for i, item in enumerate(files[:count]):
         try:
             with open(item) as f:
                 json_obj = json.load(f)
@@ -77,3 +80,8 @@ if __name__ == "__main__":
                                                    obj['mandatory'],
                                                    obj['source']) for obj in data])
         del json_obj, data,
+
+        if i % 1000 == 0:
+            print('Parced {} files'.format(i))
+
+    print('Done')
