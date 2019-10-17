@@ -60,7 +60,7 @@ def fetch_json(start=0):
         t1 = time.time()
         print('{}. Repo name is {}: {} files'.format(start + i, repo_name, len(files)))
 
-        path = os.path.join(os.path.abspath('.'), '../maps2', repo_name)
+        path = os.path.join(os.path.abspath('.'), '../maps3', repo_name)
 
         if not os.path.exists(path):
             os.makedirs(path)
