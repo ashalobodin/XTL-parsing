@@ -8,7 +8,10 @@ import sys
 
 from requests import Session as RequestSession, HTTPError
 
+from mandatory_fields import write_file
+
 thread_local = threading.local()
+FILENAME = 'download.log'
 
 
 def get_session():
@@ -31,6 +34,7 @@ def with_args(func):
 
 
 def fetch_json(start=0):
+    write_file('Starting with {}.\n'.format(start), filename=FILENAME)
     list_repos = 'https://xd.spsc.io/xd/list'
     list_files = 'https://xd.spsc.io/xd/list/{repo}/master'
     jsons = 'https://xd.spsc.io/xd/json/{repo}/master/{file}'
@@ -42,11 +46,12 @@ def fetch_json(start=0):
             fn = filename.replace('/', '_') + '.json'
             with open(os.path.join(path, fn), 'w') as f:
                 json.dump(file_content_json, f)
+            del file_content_json
         except HTTPError as exc:
-            print(exc.message)
+            write_file(exc.message+'\n', filename=FILENAME)
 
     repos = sorted(filter(lambda x: x[-4:] == '.web', verify_resp_json(list_repos, 'repos')))
-    print('Found {} repos.'.format(len(repos)))
+    write_file('Found {} repos.\n'.format(len(repos)), filename=FILENAME)
 
     i = 0
     for repo_name in repos[start:]:
@@ -54,13 +59,13 @@ def fetch_json(start=0):
             files = filter(lambda fn: fn[-4:] == '.xtl', verify_resp_json(list_files.format(repo=repo_name), 'files'))
         except HTTPError as exc:
             i += 1
-            print(exc.message)
+            write_file(exc.message+'\n', filename=FILENAME)
             continue
 
         t1 = time.time()
-        print('{}. Repo name is {}: {} files'.format(start + i, repo_name, len(files)))
+        write_file('{}. Repo name is {}: {} files.\n'.format(start + i, repo_name, len(files)), filename=FILENAME)
 
-        path = os.path.join(os.path.abspath('.'), '../maps3', repo_name)
+        path = os.path.join(os.path.abspath('.'), '../maps', repo_name)
 
         if not os.path.exists(path):
             os.makedirs(path)
@@ -68,9 +73,9 @@ def fetch_json(start=0):
             with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
                 list(executor.map(_fetch_file_content, files))
 
-            print('\tIt took {}'.format(time.time() - t1))
+            write_file('\tIt took {}.\n'.format(time.time() - t1), filename=FILENAME)
         else:
-            print('Path exists. Skipping.')
+            write_file('Path exists. Skipping.\n', filename=FILENAME)
 
         i += 1
 

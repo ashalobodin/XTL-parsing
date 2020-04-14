@@ -7,7 +7,7 @@ import sys
 BASE_RESULT_DIR = 'results'
 
 
-files = sorted([os.path.join(dp, f) for dp, dn, filenames in os.walk('../maps3')
+files = sorted([os.path.join(dp, f) for dp, dn, filenames in os.walk('../maps')
                 for f in filenames if os.path.splitext(f)[1] == '.json'])
 
 
@@ -46,7 +46,7 @@ def traverse(path, obj, entity_path, data=[]):
     return data
 
 
-def write_file(lines, mode='a', filename='fulfil_6244.txt'):
+def write_file(lines, mode='a', filename='refreshed_form_stats.txt'):
     path = os.path.join(BASE_RESULT_DIR, filename)
     with open(path, mode) as f:
         try:
